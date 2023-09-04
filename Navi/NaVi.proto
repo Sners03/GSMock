@@ -1,0 +1,112 @@
+syntax = "proto3";
+
+package NaViInterface;
+
+service NaViService{
+  // Setup
+  rpc startLocalisation(Pose) returns (Empty){} // Because it should not always have to run. Requires initial pose
+  rpc stopLocalisation(Empty) returns (Empty){}
+  rpc startPathfinding(Pose) returns (Empty){}
+  rpc stopPathfinding(Empty) returns (Empty){}
+
+  // General functionality from State Machine
+  rpc setTarget(Target) returns (Empty){} // there can only be one target at a time
+  rpc driveToTarget(Empty) returns (TargetStatus){} // blocks until reached or fail
+  rpc wait(Empty) returns (Empty){}
+  rpc resume(Empty) returns (Empty){}
+  rpc abort(Empty) returns (Empty){} // will make driveToTarget return
+
+  // Getting data
+  rpc getCurrentPose(Empty) returns (Pose){}
+  rpc beginPoseStream(Empty) returns (stream Pose){}
+  rpc endPoseStream(Empty) returns (Empty){}
+  rpc beginBackgroundCloudCapture(Empty) returns (Empty){}
+  rpc endBackgroundCloudCapture(Empty) returns (Empty){}
+  rpc getCurrentCloud(Empty) returns (PointCloud){}
+  rpc beginCloudStream(Empty) returns (stream PointCloud){}
+  rpc endCloudStream(Empty) returns (Empty){}
+  rpc getPath(Empty) returns (Path){}
+
+  // For specialist
+  rpc openSoilSampleContainer(Empty) returns (Empty){}
+  rpc closeSoilSampleContainer(Empty) returns (Empty){}
+  rpc getSoilSampleWeight(Empty) returns (Weight){}
+  rpc getDrillWeight(Empty) returns (Weight){}
+
+  // For PTF GS
+  rpc movePtfRelative(PtfValues) returns (Empty){}
+
+  // Other Cameras
+  // TODO: Do a proof of concept and implement
+
+  // General things
+  rpc getTelemetry(Empty) returns(Telemetry){}
+  rpc isReachable(Empty) returns(Empty){}
+}
+
+message Empty {
+  string debugMessage = 1;
+}
+
+message PtfValues{
+  float panValueDeg = 1;
+  float tiltValueDeg = 2;
+  float focusValue = 3;
+}
+
+message Target {
+  float xMeter = 1;
+  float yMeter = 2;
+}
+
+message Position3d{
+  float xMeter = 1;
+  float yMeter = 2;
+  float zMeter = 3;
+}
+
+message Quaternion{
+  float w = 1;
+  float x = 2;
+  float y = 3;
+  float z = 4;
+}
+
+message Pose{
+  Position3d position = 1;
+  Quaternion orientation = 2;
+}
+
+message TargetStatus{
+  bool isReached = 1;
+  bool isUnreachable = 2;
+  bool isAborted = 3;
+  // Only one can be true. If all are false, an unforeseen error occurred
+}
+
+message Point3d{
+  float x = 1;
+  float y = 2;
+  float z = 3;
+}
+
+message PointCloud{
+  repeated Point3d point = 1;
+}
+
+message Position2d{
+  float xMeter = 1;
+  float yMeter = 2;
+}
+
+message Path{
+  repeated Position2d waypoint = 1;
+}
+
+message Weight{
+  float weightGram = 1;
+}
+
+message Telemetry{
+  // TODO: Add interesting data
+}
